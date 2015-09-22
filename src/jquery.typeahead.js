@@ -1695,15 +1695,31 @@
                         itemValue = this.helper.namespace(key, item, 'get');
                     } else {
                         itemValue = item[key];
-                    }
-
+                    }                    
                     if (this.filters.dynamic[key].modifier === '|' && !softValid) {
-                        softValid = itemValue == this.filters.dynamic[key].value || false;
+
+                        if( typeof itemValue === 'object' && itemValue.length && !!~itemValue.indexOf( this.filters.dynamic[key].value ) ){
+                            softValid = true;
+                        }else if( typeof itemValue === 'object' && !itemValue.length ){
+                            softValid = itemValue.hasOwnProperty( this.filters.dynamic[key].value );
+                        }else{
+                            softValid = itemValue == this.filters.dynamic[key].value || false;
+                        }
                     }
+                    
 
                     if (this.filters.dynamic[key].modifier === '&') {
+
                         // Leaving "==" in case of comparing number with string
-                        if (itemValue == this.filters.dynamic[key].value) {
+                        if( typeof itemValue === 'object' ){
+                            if( itemValue.length && !!~itemValue.indexOf( this.filters.dynamic[key].value ) ){
+                                hardValid = true;
+                            }else if( !itemValue.length ){
+                                hardValid = itemValue.hasOwnProperty( this.filters.dynamic[key].value );
+                            }else{
+                                hardValid = false;
+                            }
+                        }else if (itemValue == this.filters.dynamic[key].value) {
                             hardValid = true;
                         } else {
                             hardValid = false;
